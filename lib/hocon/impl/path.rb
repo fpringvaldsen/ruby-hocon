@@ -34,6 +34,14 @@ class Hocon::Impl::Path
   end
   attr_reader :first, :remainder
 
+  def first
+    first
+  end
+
+  def remainder
+    remainder
+  end
+
   #
   # toString() is a debugging-oriented version while this is an
   # error-message-oriented human-readable one.
@@ -55,5 +63,9 @@ class Hocon::Impl::Path
       sb << "."
       @remainder.append_to_string_builder(sb)
     end
+  end
+
+  def self.new_path(path)
+    Parser.parse_path(path)
   end
 end

@@ -870,6 +870,66 @@ class Hocon::Impl::Parser
       end
     end
 
+    def self.has_unsafe_chars(s)
+      for i in 0...s.length
+        c = s[i]
+        if (c =~ /[[:alpha:]]/) || c == '.'
+          next
+        else
+          return true
+        end
+      end
+      false
+    end
+
+    def self.append_path_string(pb, s)
+      split_at = s.index('.')
+      if split_at.nil?
+        pb.append_key(s)
+      else
+        pb.append_key(s[0...split_at])
+        append_path_string(pb, s[(split_at + 1)...s.length])
+      end
+    end
+
+    def self.speculative_fast_parse_path(path)
+      s = ConfigImplUtil.unicode_trim(path)
+      if s.empty?
+        return nil
+      end
+      if has_unsafe_chars(s)
+        return nil
+      end
+      if s.start_with?(".") || s.end_with?(".") || s.includes?("..")
+        return nil
+      end
+
+      pb = PathBuilder.new
+      append_path_string(pb, s)
+      pb.result
+    end
+
+    def self.api_origin
+      SimpleConfigOrigin.new_simple("path parameter")
+    end
+
+    def self.parse_path(path)
+      speculated = speculative_fast_parse_path(path)
+      if not speculated.nil?
+        return speculated
+      end
+
+      reader = StringIO.new(path)
+
+      begin
+        tokens = Tokenizers.tokenize(api_origin, reader, ConfigSyntax.CONF)
+        tokens.next # drop START
+        return parse_path_expression(tokens, api_origin, path)
+      ensure
+        reader.close
+      end
+    end
+
   end
 
   def self.parse(tokens, origin, options, include_context)
