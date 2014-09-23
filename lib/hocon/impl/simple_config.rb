@@ -1,10 +1,14 @@
 require 'hocon/impl'
+require 'hocon/impl/path'
+require 'hocon/config_value_type'
 
 class Hocon::Impl::SimpleConfig
 
   ConfigMissingError = Hocon::ConfigError::ConfigMissingError
   ConfigNullError = Hocon::ConfigError::ConfigNullError
   ConfigWrongTypeError = Hocon::ConfigError::ConfigWrongTypeError
+  ConfigValueType = Hocon::ConfigValueType
+  Path = Hocon::Impl::Path
 
   def initialize(object)
     @object = object
@@ -27,7 +31,7 @@ class Hocon::Impl::SimpleConfig
     if v.value_type == ConfigValueType.NULL
       raise ConfigNullError.new(v.origin,
                                 (ConfigNullError.make_message(original_path.render,
-                                                              not expected.nil? ? expected.name : nil)),
+                                                              (not expected.nil?) ? expected.name : nil)),
                                 nil)
     elsif (not expected.nil?) && v.value_type != expected
       raise ConfigWrongTypeError.new(v.origin,
@@ -45,7 +49,7 @@ class Hocon::Impl::SimpleConfig
     if rest.nil?
       find_key(me, key, expected, original_path)
     else
-      o = find_key(me, key, Hocon::ConfigValueType.OBJECT,
+      o = find_key(me, key, ConfigValueType.OBJECT,
                   original_path.sub-path(0, original_path.length - rest.length))
       raise "Error: object o is nil" unless not o.nil?
       find(o, rest, expected, original_path)

@@ -1,7 +1,10 @@
 require 'hocon/impl'
+require 'hocon/impl/parser'
 require 'stringio'
 
 class Hocon::Impl::Path
+
+  Parser = Hocon::Impl::Parser
   # this doesn't have a very precise meaning, just to reduce
   # noise from quotes in the rendered path for average cases
   def self.has_funky_chars?(s)
@@ -35,11 +38,11 @@ class Hocon::Impl::Path
   attr_reader :first, :remainder
 
   def first
-    first
+    @first
   end
 
   def remainder
-    remainder
+    @remainder
   end
 
   #

@@ -9,13 +9,13 @@ class Hocon::Impl::DefaultTransformer
           begin
             v = Integer(s)
             return ConfigInt.new(value.origin, v, s)
-          rescue
+          rescue ArgumentError
             # try Float
           end
           begin
             v = Float(s)
             return ConfigFloat.new(value.origin, v, s)
-          rescue
+          rescue ArgumentError
             # oh well.
           end
         when NULL
@@ -71,7 +71,7 @@ class Hocon::Impl::DefaultTransformer
             next
           end
           values[key] = i
-        rescue
+        rescue ArgumentError
           next
         end
       end

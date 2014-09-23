@@ -19,6 +19,7 @@ describe Hocon::ConfigFactory do
 
     it "should make the config data available as a map" do
       expect(conf.root.unwrapped).to eq(expected)
+      puts conf.get_value("foo.bar.yippee")
     end
 
     it "should render the config data to a string with comments intact" do
